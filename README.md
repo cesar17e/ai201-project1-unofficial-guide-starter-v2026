@@ -23,10 +23,7 @@ Cesar Estrada Balbuena, campus_life
 
 <!-- Three or four sentences. Which corpus you picked, and the kinds of
      questions your system answers. Write it for someone who has never seen
-     this repo.
-
-     Milestone 5. -->
-
+     this repo. Milestone 5. -->
 
      The Unofficial Guide is a RAG system built over the `campus_life` corpus,
      which contains short documents about university life including courses,

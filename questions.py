@@ -21,13 +21,14 @@ Swap them for your own if you like. Keep five of them either way: criterion 3
 names a target of "4 of 5", and four of three is not a thing.
 """
 
+# These questions cover different areas of the campus_life corpus, including course work, dining, housing, transportation, and administrative policies. Each asks for a specific fact with a clear expected answer so retrieval and answer quality can be evaluated.
 QUESTIONS = [
     # {"question": "...", "expects": "..."},
-    {"question": "", "expects": ""},
-    {"question": "", "expects": ""},
-    {"question": "", "expects": ""},
-    {"question": "", "expects": ""},
-    {"question": "", "expects": ""},
+    {"question": "How are juniors and seniors ranked in the housing lottery?", "expects": "credit hours"},
+    {"question": "Are the CS 340 midterm and final open-book?", "expects": "open-book"},
+    {"question": "What time does Halden Hall close?", "expects": "7:00pm"},
+    {"question": "When is the best time to do laundry in Aldridge Hall?", "expects": "Tuesday or Wednesday morning"},
+    {"question": "How long does it take to walk from Fenwick Court to central campus?", "expects": "18 minutes"},
 ]
 
 # Questions from a different world entirely. Your gate should refuse all five.
