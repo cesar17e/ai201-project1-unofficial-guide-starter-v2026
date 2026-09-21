@@ -1,6 +1,6 @@
 # The Unofficial Guide
 
-<!-- Replace this line with your name and which corpus you picked. -->
+Cesar Estrada Balbuena, campus_life
 
 > **This file is your submission.** Fill it in as you go — most sections get
 > written during the milestone that produces them, not at the end.
@@ -26,6 +26,13 @@
      this repo.
 
      Milestone 5. -->
+
+
+     The Unofficial Guide is a RAG system built over the `campus_life` corpus,
+     which contains short documents about university life including courses,
+     housing, dining, transportation, and administrative policies. Users can ask
+     specific questions about these topics, and the system retrieves relevant
+     documents and generates answers grounded in those sources.
 
 ## Chunking Strategy
 
