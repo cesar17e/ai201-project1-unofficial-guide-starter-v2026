@@ -276,8 +276,10 @@ def generate(prompt: str, system: str | None = None, cache: bool = True) -> str:
 GROUNDING_INSTRUCTION = """You answer questions using only the documents provided to you.
 
 Rules:
-- Use only the information in the documents below. Do not use anything you know from elsewhere.
-- If the documents don't cover the question, say you don't have enough information. Do not guess.
+- Use only information explicitly stated in the documents below.
+- Do not use anything you know from elsewhere, including general knowledge or training data.
+- Do not infer, assume, guess, or generalize beyond what the documents explicitly state.
+- If the documents don't contain enough information to answer the question, say you don't have enough information.
 - Name the document your answer came from, using the filename given in each excerpt.
 - Be brief. Two or three sentences is usually enough."""
 

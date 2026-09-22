@@ -105,15 +105,20 @@ Laundry costs $1.75 wash, $1.75 dry, app-based. On noise: moderate; the building
 
 <!-- One complete question and answer, pasted as text, with the source line
      visible. Milestone 4. -->
-
+     
 **Question:**
+"How long does it take to walk from Fenwick Court to central campus?"
 
 **Answer:**
-
 ```
+It takes about 18 minutes on foot to walk from Fenwick Court to central campus. 
+
+Source: `transit_walking.txt` and `housing_fenwick_court.txt`
+
+Sources retrieved: dining_pellew_dining_hall_followup.txt, dining_the_ridgeway_cafe_followup.txt, housing_fenwick_court.txt, transit_shuttle.txt, transit_walking.txt
 ```
 
-**My relevance cutoff:**
+**My relevance cutoff:** 0.6
 
 <!-- The number you set in config.py, and how you got there.
 
@@ -123,10 +128,23 @@ Laundry costs $1.75 wash, $1.75 dry, app-based. On noise: moderate; the building
      here — the table below wants all ten rows.
 
      Milestone 4. -->
+     I tested the five in scope questions in `questions.py` and the five out of scope questions. The in scope questions had best distances between 0.199 and 0.3889, while the out of scope questions had best distances between 0.8246 and 0.9340. This created a large gap between the two groups.
 
+     I kept the relevance cutoff at 0.6 because it falls inside that gap. At this cutoff, all five in scope questions pass the relevance gate and all five out of scope questions are refused.
+
+     
 | Question | In corpus? | Best distance |
 |---|---|---|
-|  |  |  |
+| How are juniors and seniors ranked in the housing lottery? | Yes | 0.2034 |
+| What time does Halden Hall close? | Yes | 0.3232 |
+| How long does it take to walk from Fenwick Court to central campus? | Yes | 0.1990 |
+| Are the CS 340 midterm and final open-book? | Yes | 0.3889 |
+| When is the best time to do laundry in Aldridge Hall? | Yes | 0.3021 |
+| What is the capital of Mongolia? | No | 0.8246 |
+| How do I change the oil in a diesel engine? | No | 0.9340 |
+| Who won the 1994 World Cup? | No | 0.8859 |
+| What is the recommended dosage of ibuprofen for a headache? | No | 0.8442 |
+| How do I write a for loop in Rust? | No | 0.8960 |
 
 ## How I Used AI
 
