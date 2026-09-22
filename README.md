@@ -2,19 +2,6 @@
 
 Cesar Estrada Balbuena, campus_life
 
-> **This file is your submission.** Fill it in as you go — most sections get
-> written during the milestone that produces them, not at the end.
->
-> How the starter works, and every command you'll need, is in `RUNNING.md`.
-> Leave that file alone.
->
-> **Paste everything as text.** No screenshots, no video. A typed table gets
-> full credit; a picture of the same table gets none.
->
-> Delete these instruction blocks as you replace them. The `<!-- -->` comments
-> are notes to you and don't show up when the page renders — you can leave them
-> or remove them.
-
 ---
 
 # Unit 1
@@ -157,9 +144,9 @@ Sources retrieved: dining_pellew_dining_hall_followup.txt, dining_the_ridgeway_c
 
      Milestone 5. -->
 
-**1.**
+**1.** I asked codex whether the starter's fixed size chunking made sense for the `campus_life` corpus. It suggested keeping each short, topic-focused document as one chunk instead of splitting by character count. I used that approach, set overlap to zero, and then checked five sample chunks to make sure each one still contained a complete thought.
 
-**2.**
+**2.** I asked codex to review the starter grounding prompt after testing one of my generated answers. It suggested making the restrictions against outside knowledge and unsupported inference more explicit. I kept the original structure but added rules telling the model not to infer, assume, guess, or generalize beyond what the retrieved documents explicitly state.
 
 <!-- ── Stretch features ─────────────────────────────────────────────────────
      Doing one? Say so here BEFORE you start. A feature this README never
