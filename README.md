@@ -331,6 +331,27 @@ All 5 in-scope questions passed the relevance gate and reached answer generation
 
      Milestone 3. -->
 
+     No criteria were missed in the baseline evaluation. All five met their original
+     targets across the three runs, so there was no failed pipeline stage that needed
+     to be diagnosed.
+
+     However, Criteria 1 and 4 were somewhat safer than I realized. Criterion 1 only
+     required an answer-bearing chunk to appear somewhere in the top five retrieved
+     results. The system met that target, but the ranking was still noisy in some
+     cases. For example, the CS 340 question returned two CS 210 documents before
+     the relevant CS 340 documents, which shows that the criterion could still pass
+     even when the highest-ranked results were not the most relevant ones.
+
+     Criterion 4 was also limited because it only checked five sampled chunks.
+     `python app.py chunks -n 5` returned the same deterministic sample each time, so
+     running it three times confirmed that those five chunks were well formed but did
+     not test different parts of the corpus.
+
+     If I were tightening the criteria, I would require an answer-bearing chunk to
+     appear within the top three results for at least 4 of the 5 questions. I would
+     also change Criterion 4 to check complete sentence or document boundaries across
+     all chunks in the `campus_life` corpus instead of only five sampled chunks.
+
 ## The Improvement
 
 **What I changed:**
