@@ -178,15 +178,119 @@ Sources retrieved: dining_pellew_dining_hall_followup.txt, dining_the_ridgeway_c
 
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
-| 2. Every answer names a source | 5 of 5 |  |  |  |  |
-| 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
-| 4. | | | | | |
-| 5. | | | | | |
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5 | 5/5 | 5/5 |  |
+| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | |
+| 4. Sampled chunks contain complete sentences | 5 of 5 | 5/5 | 5/5 | 5/5 |  |
+| 5. In-scope questions pass the relevance gate | 5 of 5 | 5/5 | 5/5 | 5/5 | |
+
 
 <!-- Underneath, paste the REAL output for each criterion from one of your
      runs — the actual text your system produced, not a description of it.
      Name the file and function that produced it. -->
+
+
+### Criterion 1 evidence — Retrieved chunks contain the answer
+
+Produced by: `run_eval.py::main`  
+Retrieval: `store.py::search`  
+Chunks produced by: `chunker.py::split_documents`
+
+Example from Run 1:
+
+**Question:** Are the CS 340 midterm and final open-book?
+
+**Sources retrieved:**
+
+```text
+course_cs_210.txt
+course_cs_210_exams.txt
+course_cs_340.txt
+course_cs_340_exams.txt
+course_cs_340_workload.txt
+```
+
+**Answer:**
+
+```text
+Yes, the CS 340 midterm and final are both open-book.
+
+Source: `course_cs_340.txt` (also found in `course_cs_340_exams.txt`)
+```
+
+For all five in-scope questions, the retrieved sources included at least one document containing the answer.
+
+### Criterion 2 evidence — Every answer names a source
+
+Produced by: `run_eval.py::main`  
+Generation: `generate.py::answer_from_chunks`
+
+Example from Run 1:
+
+**Question:** When is the best time to do laundry in Aldridge Hall?
+
+```text
+The best time to do laundry in Aldridge Hall is Tuesday or Wednesday morning.
+
+Source: housing_aldridge_hall_laundry.txt
+```
+
+All five generated answers named at least one source document in each run.
+
+### Criterion 3 evidence — Gate stops out-of-corpus questions
+
+Produced by: `run_eval.py::check_out_of_scope`  
+Relevance cutoff: `0.6`
+
+```text
+What is the capital of Mongolia?                              0.825  refused
+How do I change the oil in a diesel engine?                   0.934  refused
+Who won the 1994 World Cup?                                   0.886  refused
+What is the recommended dosage of ibuprofen for a headache?   0.844  refused
+How do I write a for loop in Rust?                            0.896  refused
+```
+
+The relevance gate refused all 5 of 5 out-of-corpus questions. Retrieval and
+the gate are deterministic, so this result is recorded as 5/5 for all three
+run columns.
+
+### Criterion 4 evidence — Sampled chunks contain complete sentences
+
+Produced by: `chunker.py::split_documents`  
+Command: `python app.py chunks -n 5`  
+Saved in: `results/chunks_before.txt`
+
+The five sampled chunks were checked three times. In each check, all five
+chunks began and ended at complete document or sentence boundaries.
+
+Example:
+
+```text
+Workload for HIST 118 Modern World History
+
+People keep asking so: a lot of reading, about 120 pages a week, but no problem sets. That's real time, not optimistic time.
+
+It's front-loaded — the first month is heavier than the rest, partly because you're learning the format.
+```
+
+Source: `course_hist_118_workload.txt#0`
+
+Result: 5/5 in all three checks.
+
+### Criterion 5 evidence — In-scope questions pass the relevance gate
+
+Produced by: `run_eval.py::main`  
+Relevance cutoff: `0.6`
+
+```text
+Housing lottery       0.2034  passed
+CS 340 exams          0.3889  passed
+Halden Hall           0.3232  passed
+Aldridge laundry      0.3021  passed
+Fenwick walking       0.1990  passed
+```
+
+All 5 in-scope questions passed the relevance gate and reached answer generation.
 
 ## Verdicts
 
