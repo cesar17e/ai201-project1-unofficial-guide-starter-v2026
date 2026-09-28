@@ -151,6 +151,13 @@ Sources retrieved: dining_pellew_dining_hall_followup.txt, dining_the_ridgeway_c
 
 **2.** I asked codex to review the starter grounding prompt after testing one of my generated answers. It suggested making the restrictions against outside knowledge and unsupported inference more explicit. I kept the original structure but added rules telling the model not to infer, assume, guess, or generalize beyond what the retrieved documents explicitly state.
 
+**3.** I asked Codex to help me understand why semantic retrieval ranked a
+CS 210 document above the more relevant CS 340 document for my CS 340 question.
+It suggested combining semantic retrieval with BM25 keyword matching. I chose
+to keep Chroma's top-five retrieval and use BM25 with Reciprocal Rank Fusion
+only to re-rank those candidates, then compared the before and after rankings
+to see whether the change actually helped.
+
 <!-- ── Stretch features ─────────────────────────────────────────────────────
      Doing one? Say so here BEFORE you start. A feature this README never
      claims earns nothing.
@@ -178,11 +185,11 @@ Sources retrieved: dining_pellew_dining_hall_followup.txt, dining_the_ridgeway_c
 
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5 | 5/5 | 5/5 | Met |
-| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | Met |
-| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | Met|
-| 4. Sampled chunks contain complete sentences | 5 of 5 | 5/5 | 5/5 | 5/5 | Met |
-| 5. In-scope questions pass the relevance gate | 5 of 5 | 5/5 | 5/5 | 5/5 | Met|
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | MET|
+| 4. Sampled chunks contain complete sentences | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 5. In-scope questions pass the relevance gate | 5 of 5 | 5/5 | 5/5 | 5/5 | MET|
 
 
 <!-- Underneath, paste the REAL output for each criterion from one of your
@@ -338,9 +345,10 @@ All 5 in-scope questions passed the relevance gate and reached answer generation
      However, Criteria 1 and 4 were somewhat safer than I realized. Criterion 1 only
      required an answer-bearing chunk to appear somewhere in the top five retrieved
      results. The system met that target, but the ranking was still noisy in some
-     cases. For example, the CS 340 question returned two CS 210 documents before
-     the relevant CS 340 documents, which shows that the criterion could still pass
-     even when the highest-ranked results were not the most relevant ones.
+     cases. For example, for the CS 340 question, `course_cs_210_exams.txt` ranked
+     ahead of the more directly relevant `course_cs_340_exams.txt`. This showed that
+     the criterion could still pass even when the best-ranked document was not the
+     most relevant one.
 
      Criterion 4 was also limited because it only checked five sampled chunks.
      `python app.py chunks -n 5` returned the same deterministic sample each time, so
@@ -368,29 +376,28 @@ documents ahead of the relevant CS 340 documents. I chose hybrid reranking
 because it directly addresses that ranking problem while keeping the existing
 semantic retrieval and relevance gate unchanged.
 
-### Run Log — After
+### Run Log - After
 
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5 | 5/5 | 5/5 | Met |
-| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | Met |
-| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | Met |
-| 4. Sampled chunks contain complete sentences | 5 of 5 | 5/5 | 5/5 | 5/5 | Met |
-| 5. In-scope questions pass the relevance gate | 5 of 5 | 5/5 | 5/5 | 5/5 | Met |
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 4. Sampled chunks contain complete sentences | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 5. In-scope questions pass the relevance gate | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
 
 
 **Did it help?**
 
 Yes, but the improvement is visible in retrieval ranking rather than in the
 original acceptance-criterion scores. All five criteria were already at 5/5
-before the change and remained at 5/5 afterward. However, the hybrid reranking
-moved more directly relevant documents higher for queries containing exact
-course numbers and location names. In particular, the CS 340 exams document
-moved to the first position, and the Fenwick transit and housing documents
-moved ahead of unrelated dining results. This suggests the change improved
-ranking quality without hurting the existing gate, generation, or source
-attribution behavior.
+before the change and remained at 5/5 afterward. For the CS 340 question,
+`course_cs_340_exams.txt` moved ahead of `course_cs_210_exams.txt` and became
+the first-ranked result after hybrid reranking.
 
+The other tested questions continued to satisfy the same acceptance criteria,
+so the change improved the specific ranking issue I identified without hurting
+the existing relevance gate, generation, or source attribution behavior.
 **After evidence — retrieval ranking** 
 
 Produced by: `store.py::search`  
@@ -407,18 +414,6 @@ document first:
 5   0.6122   course_cs_340_workload.txt
 ```
 
-For the Fenwick Court question, the relevant transit and housing documents
-ranked ahead of the unrelated dining results:
-
-```text
-1   0.1990   transit_walking.txt
-2   0.2721   transit_shuttle.txt
-3   0.3620   housing_fenwick_court.txt
-4   0.5498   dining_the_ridgeway_cafe_followup.txt
-5   0.5604   dining_pellew_dining_hall_followup.txt
-```
-
-
 ## What's Still Broken
 
 <!-- For each criterion still missed after your fix: what you'd do about it,
@@ -428,6 +423,20 @@ ranked ahead of the unrelated dining results:
      not.
 
      Milestone 5. -->
+None of the five original acceptance criteria remained missed after the
+improvement. All five were already met in the baseline and remained met after
+adding hybrid reranking.
+
+However, the retrieval system still has limitations that the original criteria
+do not fully measure. The BM25 step only re-ranks the five candidates already
+returned by semantic search, so it cannot recover a relevant document if Chroma
+does not place it in the original top five. The evaluation also showed that my
+criteria focused more on whether the answer was eventually retrieved than on
+how well the retrieved documents were ranked.
+
+I stopped here because the project asks for one measured improvement, and the
+hybrid reranking addressed the ranking issue I identified without hurting any
+of the existing acceptance criteria.
 
 ## What I'd Do Differently
 
@@ -435,3 +444,14 @@ ranked ahead of the unrelated dining results:
      differently, and why?
 
      Milestone 5. -->
+
+Knowing what I know now, I would make Criterion 1 stricter. Instead of only
+requiring an answer-bearing chunk to appear somewhere in the top five results,
+I would require one to appear within the top three results for at least 4 of
+the 5 questions. The baseline showed that the original criterion could still
+pass even when less relevant documents ranked above the correct source.
+
+I would also make Criterion 4 test all chunks in the `campus_life` corpus
+instead of the same five deterministic samples. That would give a stronger
+measurement of whether my document-level chunking consistently preserves
+complete boundaries across the corpus.
