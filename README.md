@@ -178,11 +178,11 @@ Sources retrieved: dining_pellew_dining_hall_followup.txt, dining_the_ridgeway_c
 
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5 | 5/5 | 5/5 |  |
-| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | |
-| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | |
-| 4. Sampled chunks contain complete sentences | 5 of 5 | 5/5 | 5/5 | 5/5 |  |
-| 5. In-scope questions pass the relevance gate | 5 of 5 | 5/5 | 5/5 | 5/5 | |
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5 | 5/5 | 5/5 | Met |
+| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | Met |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | Met|
+| 4. Sampled chunks contain complete sentences | 5 of 5 | 5/5 | 5/5 | 5/5 | Met |
+| 5. In-scope questions pass the relevance gate | 5 of 5 | 5/5 | 5/5 | 5/5 | Met|
 
 
 <!-- Underneath, paste the REAL output for each criterion from one of your
@@ -305,11 +305,11 @@ All 5 in-scope questions passed the relevance gate and reached answer generation
 
 | # | Criterion | Verdict | How I decided |
 |---|---|---|---|
-| 1 |  |  |  |
-| 2 |  |  |  |
-| 3 |  |  |  |
-| 4 |  |  |  |
-| 5 |  |  |  |
+| 1 | Retrieved chunks contain the answer | MET | The target was at least 4 of 5 questions. In all three runs, all 5 questions had at least one retrieved chunk that contained the answer, so the criterion was met consistently.|
+| 2 | Every answer names a source | MET | The target was 5 of 5 answers naming at least one source. Across all three runs, every generated answer included at least one source filename, so the system met the target on every question and every run. |
+| 3 | The relevance gate stops out-of-corpus questions | MET | The target was at least 4 of 5 out-of-corpus questions being refused. The gate refused all 5 questions, with best distances from 0.825 to 0.934, all above the 0.6 cutoff, so the target was clearly met. |
+| 4 | Sampled chunks contain complete sentences | MET | The target was 5 of 5 sampled chunks containing complete sentences without being cut off mid-sentence. I checked the five sampled chunks three times, and all five preserved complete document and sentence boundaries in each check. |
+| 5 | In-scope questions pass the relevance gate | MET | The target was all 5 supported questions passing the relevance gate and reaching generation. All five had best distances below the 0.6 cutoff in every run, ranging from 0.1990 to 0.3889, so all five passed the gate as expected. |
 
 ## Diagnoses
 
