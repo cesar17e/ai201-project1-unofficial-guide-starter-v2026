@@ -21,6 +21,9 @@ import os
 import shutil
 from dataclasses import dataclass
 
+import re
+from rank_bm25 import BM25Okapi
+
 # Must be set BEFORE chromadb is imported. Without it, some Chroma versions
 # print "Failed to send telemetry event ..." on every single call — which looks
 # exactly like a real error, isn't one, and cost a previous cohort a lot of
@@ -177,7 +180,60 @@ def build_index(
 
     return len(chunks)
 
+#Helper functions for BM25 re-ranking of search results
+def _tokenize(text: str) -> list[str]:
+    # Convert text into simple lowercase tokens for BM25
+    return re.findall(r"[a-z0-9]+", text.lower())
 
+#Now that we have the tokenization function, we can implement the BM25 re-ranking function. This function will take a question and a list of search results, and it will re-rank the results based on their relevance to the question using the BM25 algorithm.
+def _rerank_with_bm25(question: str, results: list[Result]) -> list[Result]:
+    """
+    Re-rank semantic search results using BM25 keyword matching.
+
+    Chroma still decides which chunks are retrieved. BM25 only changes their order so exact terms such as course numbers and location names can receive more weight.
+    """
+    if not results:
+        return results
+
+    tokenized_docs = [_tokenize(result.text) for result in results]
+    query_tokens = _tokenize(question)
+
+    if not query_tokens:
+        return results
+
+    bm25 = BM25Okapi(tokenized_docs)
+    bm25_scores = bm25.get_scores(query_tokens)
+
+    #Rank the existing semantic results by their BM25 scores.
+    bm25_order = sorted(
+        range(len(results)),
+        key=lambda i: bm25_scores[i],
+        reverse=True,
+    )
+
+    bm25_ranks = {
+        index: rank
+        for rank, index in enumerate(bm25_order, start=1)
+    }
+
+    #Combine semantic rank and BM25 rank using reciprocal rank fusion.
+    scored_results = []
+
+    for semantic_rank, result in enumerate(results, start=1):
+        index = semantic_rank - 1
+
+        semantic_score = 1 / (60 + semantic_rank)
+        keyword_score = 1 / (60 + bm25_ranks[index])
+
+        combined_score = semantic_score + keyword_score
+        scored_results.append((combined_score, result))
+
+    scored_results.sort(key=lambda item: item[0], reverse=True)
+
+    return [result for _, result in scored_results]
+
+
+#Changed search function to call the BM25 re-ranking function after retrieving results from Chroma. This way, the final results returned to the user will be ordered based on both semantic similarity and keyword relevance.
 def search(
     question: str,
     top_k: int | None = None,
@@ -185,9 +241,10 @@ def search(
     variant: str = "default",
 ) -> list[Result]:
     """
-    Retrieve the chunks closest in meaning to a question.
+    Retrieve semantic candidates and re-rank them using BM25 keyword matching.
 
-    Returns them nearest-first, each with its distance.
+    Returns results in hybrid rank order. Each result keeps its original
+    cosine distance for the relevance gate.
     """
     top_k = top_k or config.TOP_K
     name = config.collection_name(corpus, variant)
@@ -217,7 +274,7 @@ def search(
                 produced_by=str(meta.get("produced_by", "unknown")),
             )
         )
-    return results
+    return _rerank_with_bm25(question, results)
 
 
 def index_exists(corpus: str | None = None, variant: str = "default") -> bool:

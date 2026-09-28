@@ -354,34 +354,70 @@ All 5 in-scope questions passed the relevance gate and reached answer generation
 
 ## The Improvement
 
-**What I changed:**
+**What I changed:**  
+I added BM25 keyword reranking to the existing semantic retrieval and used
+Reciprocal Rank Fusion to combine the semantic and keyword rankings. Chroma
+still retrieves the top five semantic candidates, while BM25 gives exact terms
+such as course numbers and location names additional influence over their final
+order.
 
-**Why I picked it:**
-
-<!-- Connect it to a specific diagnosis above in one sentence. If you can't,
-     you picked a fix because it sounded impressive. -->
+**Why I picked it:**  
+The baseline met all five acceptance criteria, but retrieval ranking was still
+noisy for some exact terms. For example, the CS 340 question ranked CS 210
+documents ahead of the relevant CS 340 documents. I chose hybrid reranking
+because it directly addresses that ranking problem while keeping the existing
+semantic retrieval and relevance gate unchanged.
 
 ### Run Log — After
 
-<!-- Same format, same five criteria, three runs each.
-     `python run_eval.py --label after` -->
-
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
-| 2. Every answer names a source | 5 of 5 |  |  |  |  |
-| 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
-| 4. | | | | | |
-| 5. | | | | | |
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5 | 5/5 | 5/5 | Met |
+| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | Met |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | Met |
+| 4. Sampled chunks contain complete sentences | 5 of 5 | 5/5 | 5/5 | 5/5 | Met |
+| 5. In-scope questions pass the relevance gate | 5 of 5 | 5/5 | 5/5 | 5/5 | Met |
+
 
 **Did it help?**
 
-<!-- Say plainly whether it did, and how you know. If it made things worse,
-     say that — a change that backfired, honestly reported, earns full credit
-     and is more interesting than one that worked. What matters is that you can
-     tell.
+Yes, but the improvement is visible in retrieval ranking rather than in the
+original acceptance-criterion scores. All five criteria were already at 5/5
+before the change and remained at 5/5 afterward. However, the hybrid reranking
+moved more directly relevant documents higher for queries containing exact
+course numbers and location names. In particular, the CS 340 exams document
+moved to the first position, and the Fenwick transit and housing documents
+moved ahead of unrelated dining results. This suggests the change improved
+ranking quality without hurting the existing gate, generation, or source
+attribution behavior.
 
-     Milestone 4. -->
+**After evidence — retrieval ranking** 
+
+Produced by: `store.py::search`  
+Hybrid reranking: `store.py::_rerank_with_bm25`
+
+For the CS 340 question, the hybrid ranking placed the most directly relevant
+document first:
+
+```text
+1   0.4376   course_cs_340_exams.txt
+2   0.3889   course_cs_210_exams.txt
+3   0.4806   course_cs_340.txt
+4   0.5440   course_cs_210.txt
+5   0.6122   course_cs_340_workload.txt
+```
+
+For the Fenwick Court question, the relevant transit and housing documents
+ranked ahead of the unrelated dining results:
+
+```text
+1   0.1990   transit_walking.txt
+2   0.2721   transit_shuttle.txt
+3   0.3620   housing_fenwick_court.txt
+4   0.5498   dining_the_ridgeway_cafe_followup.txt
+5   0.5604   dining_pellew_dining_hall_followup.txt
+```
+
 
 ## What's Still Broken
 
